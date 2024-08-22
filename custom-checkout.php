@@ -55,13 +55,6 @@ function ccp_register_settings() {
         'ccp_main_section'
     );
     add_settings_field(
-        'ccp_enable_auto_print',
-        'Habilitar impresión automática',
-        'ccp_enable_auto_print_input',
-        'custom-checkout-plugin',
-        'ccp_main_section'
-    );
-    add_settings_field(
         'ccp_enable_print_button',
         'Habilitar botón de impresión',
         'ccp_enable_print_button_input',
@@ -79,12 +72,6 @@ function ccp_enable_custom_fields_input() {
     $options = get_option( 'ccp_options' );
     $checked = isset( $options['enable_custom_fields'] ) ? checked( 1, $options['enable_custom_fields'], false ) : '';
     echo '<input type="checkbox" id="ccp_enable_custom_fields" name="ccp_options[enable_custom_fields]" value="1" ' . $checked . ' />';
-}
-
-function ccp_enable_auto_print_input() {
-    $options = get_option( 'ccp_options' );
-    $checked = isset( $options['enable_auto_print'] ) ? checked( 1, $options['enable_auto_print'], false ) : '';
-    echo '<input type="checkbox" id="ccp_enable_auto_print" name="ccp_options[enable_auto_print]" value="1" ' . $checked . ' />';
 }
 
 function ccp_enable_print_button_input() {
@@ -140,29 +127,7 @@ function ccp_set_default_checkout_fields() {
 }
 add_action( 'template_redirect', 'ccp_set_default_checkout_fields' );
 
-function ccp_custom_woocommerce_print_after_order() {
-    if ( is_order_received_page() ) {
-        $options = get_option( 'ccp_options' );
-        if ( isset( $options['enable_auto_print'] ) && $options['enable_auto_print'] ) {
-            // Suponiendo que xolotlprintpos tiene una función para imprimir
-            if ( function_exists( 'xolotlprintpos_print_order' ) ) {
-                xolotlprintpos_print_order(); // Llama a la función real del plugin para imprimir
-            }
-
-            ?>
-            <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function () {
-                    setTimeout(function() {
-                        window.print();
-                    }, 2000);
-                });
-            </script>
-            <?php
-        }
-    }
-}
-add_action( 'wp_footer', 'ccp_custom_woocommerce_print_after_order' );
-
+// Mostrar el botón de impresión en la página de agradecimiento
 function ccp_add_print_button_on_thank_you_page( $order_id ) {
     $options = get_option( 'ccp_options' );
     if ( isset( $options['enable_print_button'] ) && $options['enable_print_button'] ) {
@@ -177,9 +142,11 @@ function ccp_add_print_button_on_thank_you_page( $order_id ) {
                 .woocommerce-order-received {
                     display: block;
                 }
-                /* Ocultar datos de facturación */
-                .woocommerce-billing-fields {
-                    display: none;
+                /* Ocultar enlaces de productos y el label de vendedor */
+                .woocommerce-order-items a,
+                .woocommerce-order-items .order_item .product_title,
+                .woocommerce-order-items .order_item .product_meta {
+                    display: none !important;
                 }
             }
         </style>
