@@ -3,7 +3,7 @@
  * Plugin Name: Custom Checkout Plugin
  * Description: Personaliza el proceso de checkout de WooCommerce.
  * Version: 1.0
- * Author: Tu Nombre
+ * Author: Xolotl Tech
  * License: GPL2
  */
 
@@ -142,10 +142,17 @@ function ccp_add_print_button_on_thank_you_page( $order_id ) {
                 .woocommerce-order-received {
                     display: block;
                 }
-                /* Ocultar enlaces de productos y el label de vendedor */
-                .woocommerce-order-items a,
-                .woocommerce-order-items .order_item .product_title,
+                /* Eliminar el label de vendedor */
                 .woocommerce-order-items .order_item .product_meta {
+                    display: none !important;
+                }
+                /* Eliminar todos los enlaces */
+                .woocommerce-table.shop_table td a {
+                    pointer-events: none;
+                    color: black; /* Asegura que el texto no sea azul */
+                }
+                /* Ocultar el botón de impresión */
+                .print-button-ticket {
                     display: none !important;
                 }
             }
@@ -155,8 +162,18 @@ function ccp_add_print_button_on_thank_you_page( $order_id ) {
                 var printButton = document.querySelector('.print-button-ticket');
                 if (printButton) {
                     printButton.addEventListener('click', function() {
+                        // Eliminar todos los enlaces en los títulos de productos antes de imprimir
+                        document.querySelectorAll('.woocommerce-table.shop_table td a').forEach(function(link) {
+                            link.removeAttribute('href');
+                            link.style.color = 'black'; // Asegura que el texto no sea azul
+                        });
                         window.print(); // Inicia la impresión cuando se hace clic en el botón
                     });
+
+                    // Redirigir después de la impresión
+                    window.onafterprint = function() {
+                        window.location.href = '<?php echo esc_url(home_url('/')); ?>'; // Redirige a la página principal
+                    };
                 }
             });
         </script>
@@ -164,3 +181,4 @@ function ccp_add_print_button_on_thank_you_page( $order_id ) {
     }
 }
 add_action( 'woocommerce_thankyou', 'ccp_add_print_button_on_thank_you_page' );
+
